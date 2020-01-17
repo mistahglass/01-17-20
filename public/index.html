@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hello, WebVR! - A-Frame</title>
+        <meta name="description" content="Hello, WebVR! - A-Frame">
+        <script src="https://aframe.io/releases/1.0.3/aframe.min.js"></script>
+        <script src="/js/spherical-env-map.js"></script>
+
+        <!-- lets load in our components -->
+        <script src="/js/create-cow-component.js"></script>
+        <script src="/js/remove-component.js"></script>
+    </head>
+    <body>
+        <!-- main scene and we added shadows .. -->
+        <a-scene shadow="type:basic;">
+                <a-assets timeout="3000">
+
+                    <!-- all assets that can be cached by browser -->
+                    <img crossorigin="anonymous" id="skymap" src="/assets/textures/CloudySky.jpg">
+                    <img crossorigin="anonymous" id="cowmap" src="/assets/textures/Cow.png">
+                    <a-asset-item crossorigin="anonymous" id="Helmet-gltf" src="/assets/models/DamagedHelmet.glb">
+                    <a-asset-item crossorigin="anonymous" id="Cow-obj" src="/assets/models/Cow.obj">
+
+                    <!-- use this method if you are having problems with sound playing -->
+                    <!-- sounds from "SuperSays" project : https://github.com/supermedium/supersays/tree/master/src/assets -->
+                    <a-asset-item crossorigin="anonymous" id="create-sound" src="/assets/sound/0.ogg" response-type="arraybuffer"></a-asset-item>
+                    <a-asset-item crossorigin="anonymous" id="delete-sound" src="/assets/sound/1.ogg" response-type="arraybuffer"></a-asset-item>
+
+                    <!-- this is the recommended method to preload sound though the above method seems to work consistently -->
+                    <!-- <audio id="create-sound" crossorigin="anonymous" src="/assets/sound/0.ogg" ></audio> -->
+                    <!-- <audio id="delete-sound" crossorigin="anonymous" src="/assets/sound/1.ogg" ></audio> -->
+                </a-assets>
+
+                <!-- traditional method of creating a camera and cursor component for selection. select with reticle. -->
+                <!-- Also added in controls for desktop mouse/kb -->
+                <a-entity position="0 2 0 " camera look-controls wasd-controls>
+                    <!-- if you add rayOrigin:mouse to teh cursor properties selection happens where you click -->
+                    <!-- <a-entity   cursor="fuse:true; fuseTimeout:500; rayOrigin:mouse;" -->
+                        <!-- geometry="primitive:ring; radiusInner:0.02; radiusOuter:0.03;" -->
+                    <a-entity   cursor="fuse:false; fuseTimeout:500; rayOrigin:mouse; "
+                                raycaster="far:10; interval:100; objects:.clickable"
+                                position="0 0 -1"
+                                
+                                material="shader:flat; color:black;" >
+                    </a-entity>
+                </a-entity>
+
+                <!-- sound entities we will query and play in components -->
+                <a-entity id="createSound" sound="src:#create-sound"></a-entity>
+                <a-entity id="deleteSound" sound="src:#delete-sound"></a-entity>
+            
+                <!-- default lighting added in manually -->
+                <a-entity light="type:directional; castShadow:true; intensity:0.6; shadowBias:-0.000001; shadowMapWidth:1024; shadowMapHeight:1024;" position="-0.5 1 1"></a-entity>
+                <a-entity light="type: ambient; intensity: 1.0; color:#bbb;"></a-entity>
+            
+                <!-- our helmet model from : https://github.com/KhronosGroup/glTF-Sample-Models -->
+                <a-gltf-model src="#Helmet-gltf" position="0 0.6 -4" scale="1 1 1" shadow="cast:true; receive:true;" spherical-env-map="src:#skymap;"></a-gltf-model>
+                    
+                <!-- our button -->
+                <a-entity class="clickable" create-cow-component position="0 0.05 -2.5" geometry="primitive:cylinder; radius:0.4; height:0.1;" material="color:rgb(255, 200, 100)"></a-entity>
+
+                <!-- plane so we can see shadows -->
+                <a-entity id="plane" geometry="primitive:plane; width:10; height:10;" position="0 0 -4" rotation="-90 0 0" 
+                    shadow="receive:true;" material="color:#7BC8A4; sphericalEnvMap:#skymap; roughness:0.5; metalness:0.0;"></a-entity>
+            
+                <!-- manual method of creating "sky sphere" -->
+                <a-entity id="sky"
+                    geometry="primitive:sphere; radius:500;"
+                    material="shader:flat; src:#skymap; side:back; height:2048; width:2048"></a-entity>
+        </a-scene>
+    </body>
+</html>
